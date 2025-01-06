@@ -1,11 +1,3 @@
-import { createClient } from '@supabase/supabase-js'
-import type { SupabaseAuthClient } from '@supabase/supabase-js/dist/module/lib/SupabaseAuthClient';
-
-
-function getSupabaseClient(): SupabaseClient<any> {
-const supabase = createClient( process.env.SUPABASE_URL??  '', process.env.SUPABASE_KEY ?? '');
-return supabase;
-}
 
 export default function Page() {
     return     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
