@@ -1,5 +1,5 @@
 import Image from "next/image";
-import HelloWorld from "./components/helloworld";
+import HelloWorld from "@/components/helloworld";
 
 export default function Home() {
   return (
