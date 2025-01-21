@@ -14,7 +14,11 @@ export default function Signup() {
   return (
     <main className="w-full flex-1 flex items-center justify-center h-screen p-4">
     <section className="sm:max-w-md w-full">
-    <form className="flex flex-col min-w-64 max-w-64 mx-auto" action={formAction}>
+    <form 
+    style={{
+      display:formState.message? 'none' : 'block',
+    }}
+     className="flex flex-col min-w-64 max-w-64 mx-auto" action={formAction}>
     <h1 className="text-2xl font-medium mb-2">Sign up</h1>
     <p className="text-sm text-foreground mb-6">
     Already have an account?{" "}
@@ -77,11 +81,12 @@ export default function Signup() {
     
     <SubmitButton pendingText="Signing up...">Sign up</SubmitButton>
     </div>
-    
+
+    </form>
+        
     {formState.message && (
       <p> {formState.message } </p>
     )}
-    </form>
     </section>
     </main>
   );
