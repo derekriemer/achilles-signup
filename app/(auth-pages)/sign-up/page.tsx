@@ -1,6 +1,5 @@
 "use client";
 import { signUpAction} from "./signupAction";
-import { FormMessage } from "@/components/form-message";
 import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +8,6 @@ import { useActionState } from "react";
 
 export default function Signup() {
   const [formState, formAction] = useActionState(signUpAction, {
-    message: null,
     errors: {},
   });
   
