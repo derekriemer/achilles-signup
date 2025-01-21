@@ -1,7 +1,9 @@
+// Layout: add title metadata to sign up page
 export const metadata = {
-    title: 'Sign up',
+    title: 'Sign Up',
   }
 
+// Layout function takes an object with children, of type React.ReactNode
 export default async function Layout({
     children,
   }: {
