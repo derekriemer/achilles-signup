@@ -6,41 +6,55 @@ import { headers } from "next/headers";
 
 const EMAIL_REGEXP = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z][A-Za-z0-9-_]+$/;
 
+interface Field  {
+  value?: string;
+  error?: string;
+}
+
 export interface SignupState {
+  // Error message from supabase
   errorMessage?: string;
+  // success message from supabase or us.
   message?: string;
-  errors: {
-    email?: string;
-    name?: string;
-    password?: string;
+  fields: {
+    email: Field;
+    name: Field;
+    password: Field;
   };
 }
 
 export async function signUpAction(prevState: SignupState, formData: FormData): Promise<SignupState> {
-  const email = formData.get("email")?.toString();
-  const name= formData.get("name")?.toString();
-  const password = formData.get("password")?.toString();
-  
-  const returnedData: SignupState = {message: null, errors:{},};
+  const returnedData: SignupState = {
+    fields: {
+      email : {
+        value : formData.get("email")?.toString(),
+      },
+      name: {
+        value: formData.get("name")?.toString(),
+      },
+      password : {
+        value: formData.get("password")?.toString(),
+      },
+    },
+  };
   let errors = false;
   // Validate required fields
   // todo ( someone): Extract this to a validation util, for ease of testing and readability.
   // It's a bad idea to use a regexp for email validation, but poop.
-  if (!email) {
+  if (!returnedData.fields.email.value) {
     errors = true;
-    returnedData.errors.email = "No Email Provided.";
-  } else if( !email.match(EMAIL_REGEXP)) {
+    returnedData.fields.email.error = "No Email Provided.";
+  } else if( !returnedData.fields.email.value.match(EMAIL_REGEXP)) {
     errors = true;
-    returnedData.errors.email = `Your email is not a valid email.`;
-    
+    returnedData.fields.email.error= `Your email ${returnedData.fields.email.value} is not a valid email.`;
   }
-  if( !name) {
+  if( !returnedData.fields.name.value) {
     errors = true;
-    returnedData.errors.name= "No password provided."
+    returnedData.fields.name.error= "No password provided.";
   }
-  if (!password) {
+  if (!returnedData.fields.password.value) {
     errors = true;
-    returnedData.errors.password = "No password provided."
+    returnedData.fields.password.error = "No password provided.";
   }
   //todo (someone): Add password validation, if supabase doesn't provide it.
   if (errors) {
@@ -51,37 +65,26 @@ export async function signUpAction(prevState: SignupState, formData: FormData): 
   const origin = (await headers()).get("origin") || "";
   try {
     const supabase = await createClient();
-    // We actually already narrowed type for email and password to remove the bad types, but the logic is too tricky to realize it.
+    // We actually already narrowed type when validating for fields to remove the bad types, but the logic is too tricky for typescript to infer this.
     const { error } = await supabase.auth.signUp({
-      email: castString(email),
-      password: castString(password),
+      email: castString(returnedData.fields.email.value),
+      password: castString(returnedData.fields.password.value),
       options: {
         emailRedirectTo: `${origin}/auth/confirm`,
         data: {
-          name: castString(name),
+          name: castString(returnedData.fields.name.value),
         }
       },
     });
     if (error) {
       console.error(`Signup error: ${error.code} - ${error.message}`);
-      return { 
-        errorMessage: error.message, 
-        message: null,
-        errors: {
-        },
-      };
+        returnedData.errorMessage = error.message;
+        return returnedData;
     }
-    
-    return {
-      message: "Thanks for signing up! Please check your email for a verification link.",
-      errors: {},
-    };
+      returnedData.message = "Thanks for signing up! Please check your email for a verification link.";
   } catch (err) {
     console.error("Unexpected signup error:", err);
-    return {
-      errorMessage: "An unexpected error occurred. Please try again later.",
-      message: null,
-      errors: { },
-    };
+    returnedData.errorMessage= "An unexpected error occurred. Please try again later.";
   }
+  return returnedData;
 }
